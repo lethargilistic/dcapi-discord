@@ -1,8 +1,8 @@
 import discord
 from discord.ext.commands import Bot
-from dcapi import Dcapi
+import dcapi
+from secret import token
 
-api = Dcapi()
 my_bot = Bot(command_prefix="!")
 
 @my_bot.event
@@ -11,16 +11,15 @@ async def on_read():
 
 @my_bot.command()
 async def character(*args):
-    if len(args) != 1:
-        return await my_bot.say("Malformed args")
+    search_term = ""
+    for part in args:
+        search_term += part + " "
+    search_term = search_term.strip()
 
-    search_term = args[0]
-
-    json = api.character(search_term)
+    try:
+        json = dcapi.character(search_term)
+    except ConnectionError as msg:
+        return await my_bot.say(msg)
     return await my_bot.say(json)
 
-@my_bot.command()
-async def hello(*args):
-    return await my_bot.say("Hello, world!")
-
-my_bot.run("MzIxMDM4OTA5NzAwMDQ2ODQ5.DBYP6A.YX12hiJIc_vD_5o65FnqVvEwneQ")
+my_bot.run(token)
